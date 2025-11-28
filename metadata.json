@@ -1,0 +1,5 @@
+{
+  "name": "Tri-League Manager",
+  "description": "A comprehensive tournament manager for a 3-team double round-robin league featuring automatic standings updates and finals generation.",
+  "requestFramePermissions": []
+}
