@@ -2,7 +2,7 @@ export interface Team {
   id: string;
   name: string;
   color: string;
-  logo: string; // Emoji or simple text
+  logo: string; // Icon name from lucide-react
 }
 
 export interface TeamStats extends Team {
@@ -24,6 +24,12 @@ export enum MatchStatus {
 export enum MatchType {
   GROUP = 'GROUP',
   FINAL = 'FINAL',
+  KNOCKOUT = 'KNOCKOUT',
+}
+
+export enum TournamentType {
+  LEAGUE = 'LEAGUE',
+  KNOCKOUT = 'KNOCKOUT',
 }
 
 export interface Match {
@@ -35,4 +41,17 @@ export interface Match {
   status: MatchStatus;
   type: MatchType;
   round?: number;
+  knockoutRound?: string; // 'final', 'semi', 'quarter', etc.
+  nextMatchId?: string; // For knockout progression
+  position?: 'top' | 'bottom'; // Position in knockout bracket
+}
+
+export interface Tournament {
+  id: string;
+  name: string;
+  type: TournamentType;
+  teams: Team[];
+  matches: Match[];
+  matchesPerOpponent?: number; // For league tournaments
+  createdAt: number;
 }

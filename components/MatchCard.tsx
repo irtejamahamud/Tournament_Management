@@ -1,6 +1,7 @@
 import React from 'react';
 import { Match, MatchStatus, MatchType, Team } from '../types';
 import { Swords, CheckCircle2 } from 'lucide-react';
+import * as Icons from 'lucide-react';
 
 interface Props {
   match: Match;
@@ -12,6 +13,12 @@ interface Props {
 
 const MatchCard: React.FC<Props> = ({ match, homeTeam, awayTeam, onUpdateScore, isFinal = false }) => {
   const isCompleted = match.status === MatchStatus.COMPLETED;
+
+  const renderIcon = (iconName: string, className: string = 'w-8 h-8') => {
+    const IconComponent = (Icons as any)[iconName];
+    if (!IconComponent) return <Icons.Circle className={className} />;
+    return <IconComponent className={className} />;
+  };
 
   const handleScoreChange = (e: React.ChangeEvent<HTMLInputElement>, side: 'home' | 'away') => {
     const val = e.target.value;
@@ -50,7 +57,9 @@ const MatchCard: React.FC<Props> = ({ match, homeTeam, awayTeam, onUpdateScore, 
         
         {/* Home Team */}
         <div className="flex-1 flex flex-col items-center gap-2">
-          <div className="text-3xl filter drop-shadow-md transform transition-transform hover:scale-110">{homeTeam.logo}</div>
+          <div className={`filter drop-shadow-md transform transition-transform hover:scale-110 ${homeTeam.color}`}>
+            {renderIcon(homeTeam.logo)}
+          </div>
           <div className={`font-semibold text-center text-sm md:text-base leading-tight ${homeTeam.color}`}>
             {homeTeam.name}
           </div>
@@ -95,7 +104,9 @@ const MatchCard: React.FC<Props> = ({ match, homeTeam, awayTeam, onUpdateScore, 
 
         {/* Away Team */}
         <div className="flex-1 flex flex-col items-center gap-2">
-          <div className="text-3xl filter drop-shadow-md transform transition-transform hover:scale-110">{awayTeam.logo}</div>
+          <div className={`filter drop-shadow-md transform transition-transform hover:scale-110 ${awayTeam.color}`}>
+            {renderIcon(awayTeam.logo)}
+          </div>
           <div className={`font-semibold text-center text-sm md:text-base leading-tight ${awayTeam.color}`}>
             {awayTeam.name}
           </div>

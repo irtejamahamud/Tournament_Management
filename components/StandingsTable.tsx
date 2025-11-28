@@ -1,12 +1,19 @@
 import React from 'react';
 import { TeamStats } from '../types';
 import { Trophy, Target, ShieldAlert, Activity } from 'lucide-react';
+import * as Icons from 'lucide-react';
 
 interface Props {
   stats: TeamStats[];
 }
 
 const StandingsTable: React.FC<Props> = ({ stats }) => {
+  const renderIcon = (iconName: string, className: string = 'w-5 h-5') => {
+    const IconComponent = (Icons as any)[iconName];
+    if (!IconComponent) return <Icons.Circle className={className} />;
+    return <IconComponent className={className} />;
+  };
+
   return (
     <div className="w-full bg-slate-900 rounded-xl overflow-hidden shadow-xl border border-slate-800">
       <div className="p-4 bg-slate-800/50 border-b border-slate-700 flex items-center gap-2">
@@ -38,7 +45,7 @@ const StandingsTable: React.FC<Props> = ({ stats }) => {
                   {index === 0 && <Trophy className="w-3 h-3 text-yellow-500 inline ml-1" />}
                 </td>
                 <td className="px-4 py-3 font-medium text-white flex items-center gap-2">
-                  <span className="text-xl">{team.logo}</span>
+                  <span className={team.color}>{renderIcon(team.logo)}</span>
                   <span className={`${team.color}`}>{team.name}</span>
                 </td>
                 <td className="px-3 py-3 text-center">{team.played}</td>
