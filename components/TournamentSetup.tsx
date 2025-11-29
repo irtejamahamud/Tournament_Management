@@ -12,6 +12,14 @@ interface Props {
     matchesPerOpponent?: number
   ) => void;
   onBack?: () => void;
+  onRequestConfirm?: (opts: {
+    title?: string;
+    message?: string;
+    confirmLabel?: string;
+    cancelLabel?: string;
+    showCancel?: boolean;
+    onConfirm?: () => void;
+  }) => void;
 }
 
 const TEAM_COLORS = [
@@ -36,7 +44,7 @@ const QUICK_ICONS = [
   'Sparkles', 'Sun', 'Moon', 'CloudLightning', 'Mountain', 'Waves'
 ];
 
-const TournamentSetup: React.FC<Props> = ({ onCreateTournament, onBack }) => {
+const TournamentSetup: React.FC<Props> = ({ onCreateTournament, onBack, onRequestConfirm }) => {
   const [step, setStep] = useState(1); // 1: Name, 2: Teams, 3: Type
   const [tournamentName, setTournamentName] = useState('');
   const [numberOfTeams, setNumberOfTeams] = useState<number>(4);
@@ -72,12 +80,40 @@ const TournamentSetup: React.FC<Props> = ({ onCreateTournament, onBack }) => {
 
   const deleteTeam = (index: number) => {
     if (teams.length <= 2) {
-      alert('You need at least 2 teams!');
+      // show modal alert
+        if (onRequestConfirm) {
+          onRequestConfirm({
+            title: 'Cannot Remove Team',
+            message: 'You need at least 2 teams!',
+            confirmLabel: 'OK',
+            showCancel: false,
+            onConfirm: () => {}
+          });
+        } else {
+          alert('You need at least 2 teams!');
+        }
       return;
     }
-    const updated = teams.filter((_, i) => i !== index);
-    setTeams(updated);
-    setNumberOfTeams(updated.length);
+
+    // Confirm deletion
+    if (onRequestConfirm) {
+      onRequestConfirm({
+        title: 'Remove Team',
+        message: `Are you sure you want to remove ${teams[index].name}?`,
+        confirmLabel: 'Remove',
+        cancelLabel: 'Cancel',
+        showCancel: true,
+        onConfirm: () => {
+          const updated = teams.filter((_, i) => i !== index);
+          setTeams(updated);
+          setNumberOfTeams(updated.length);
+        }
+      });
+    } else {
+      const updated = teams.filter((_, i) => i !== index);
+      setTeams(updated);
+      setNumberOfTeams(updated.length);
+    }
   };
 
   const addTeam = () => {

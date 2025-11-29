@@ -5,6 +5,7 @@ import StandingsTable from './components/StandingsTable';
 import MatchCard from './components/MatchCard';
 import KnockoutBracket from './components/KnockoutBracket';
 import TournamentSetup from './components/TournamentSetup';
+import Modal from './components/Modal';
 import { Trophy, RefreshCw, Dna, Home, List } from 'lucide-react';
 import * as Icons from 'lucide-react';
 
@@ -12,6 +13,15 @@ const App: React.FC = () => {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
   const [init, setInit] = useState(false);
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    title?: string;
+    message?: string;
+    confirmLabel?: string;
+    cancelLabel?: string;
+    showCancel?: boolean;
+    onConfirm?: () => void;
+  }>({ isOpen: false });
 
   // Initialize from localStorage
   useEffect(() => {
@@ -31,6 +41,19 @@ const App: React.FC = () => {
       localStorage.setItem('carom_tournament', JSON.stringify(updated));
     }
   }, [matches, tournament, init]);
+
+  const openModal = (opts: {
+    title?: string;
+    message?: string;
+    confirmLabel?: string;
+    cancelLabel?: string;
+    showCancel?: boolean;
+    onConfirm?: () => void;
+  }) => {
+    setModalState({ isOpen: true, ...opts });
+  };
+
+  const closeModal = () => setModalState({ isOpen: false });
 
   // Derived State: Standings (only for league)
   const standings = useMemo(() => {
@@ -91,11 +114,19 @@ const App: React.FC = () => {
 
   // Reset Tournament
   const handleReset = () => {
-    if (window.confirm("Are you sure you want to reset and create a new tournament?")) {
-      setTournament(null);
-      setMatches([]);
-      localStorage.removeItem('carom_tournament');
-    }
+    openModal({
+      title: 'Reset Tournament',
+      message: 'Are you sure you want to reset and create a new tournament?',
+      confirmLabel: 'Reset',
+      cancelLabel: 'Cancel',
+      showCancel: true,
+      onConfirm: () => {
+        setTournament(null);
+        setMatches([]);
+        localStorage.removeItem('carom_tournament');
+        closeModal();
+      }
+    });
   };
 
   const getTeam = (id: string) => tournament?.teams.find(t => t.id === id);
@@ -108,7 +139,22 @@ const App: React.FC = () => {
 
   // Show setup if no tournament
   if (!tournament) {
-    return <TournamentSetup onCreateTournament={handleCreateTournament} />;
+    return (
+      <>
+        <TournamentSetup onCreateTournament={handleCreateTournament} onRequestConfirm={(opts: any) => openModal(opts)} />
+        <Modal
+          isOpen={modalState.isOpen}
+          title={modalState.title}
+          confirmLabel={modalState.confirmLabel}
+          cancelLabel={modalState.cancelLabel}
+          showCancel={modalState.showCancel}
+          onConfirm={() => { modalState.onConfirm?.(); }}
+          onCancel={() => closeModal()}
+        >
+          {modalState.message}
+        </Modal>
+      </>
+    );
   }
 
   // Render League Tournament
@@ -255,6 +301,17 @@ const App: React.FC = () => {
             </div>
           )}
         </main>
+        <Modal
+          isOpen={modalState.isOpen}
+          title={modalState.title}
+          confirmLabel={modalState.confirmLabel}
+          cancelLabel={modalState.cancelLabel}
+          showCancel={modalState.showCancel}
+          onConfirm={() => { modalState.onConfirm?.(); }}
+          onCancel={() => closeModal()}
+        >
+          {modalState.message}
+        </Modal>
       </div>
     );
   }
@@ -326,6 +383,17 @@ const App: React.FC = () => {
           return null;
         })()}
       </main>
+      <Modal
+        isOpen={modalState.isOpen}
+        title={modalState.title}
+        confirmLabel={modalState.confirmLabel}
+        cancelLabel={modalState.cancelLabel}
+        showCancel={modalState.showCancel}
+        onConfirm={() => { modalState.onConfirm?.(); }}
+        onCancel={() => closeModal()}
+      >
+        {modalState.message}
+      </Modal>
     </div>
   );
 };
